@@ -73,7 +73,7 @@ KEY LOAD FAILED :: [Errno 2] No such file or directory:
 
 ## 读源码，一次看清三件事
 
-把 `kid` 指向程序自己：`kid=/app/app.py`，读回 15522 字节。
+把 `kid` 指向程序自己：`kid=/app/app.py`。
 
 第一件是 `kid` 怎么变成路径：
 
@@ -125,32 +125,13 @@ JWT 的第三段是 HMAC-SHA256 对前两段算出来的签名。密钥到手，
 {"sub":"reader","role":"editor"}
 ```
 
-把这两段和 `EDITOR_KEY` 填进工具，算法选 HS256 就能签出来，不用写代码。
+把这两段和 `EDITOR_KEY` 填进工具，算法选 HS256 就能签出来。
 
 ```http
 GET /admin
 Cookie: token=<伪造的证>
 ```
 
-200，flag 在页面上。
+flag 在页面上。
 
 ![用 EDITOR_KEY 伪造的证访问 /admin：HTTP 200，Editor Access Granted，flag 直接印在页面上](截图/09-伪造证通关页面.png)
-
-## 对照
-
-- 真 reader 证 → 403，章真、角色不够
-- 改 role 但签名不动 → 401，签名绑在内容上
-- 坏签名 + `kid=reader.key` → 401，加载成功，只是不打印
-- 坏签名 + `kid=nope.key` → 401，报错泄漏 `/app/keys/`
-- 坏签名 + 绝对路径 → 401，任意文件读成立
-- 坏签名 + `kid=/app/app.py` → 401，读到源码拿到密钥
-- 伪造 editor 证 + `kid=reader.key` → 401，钥匙用错
-- 伪造 editor 证 + `kid=editor.key` → 200，通关
-
-最后两行说明 `kid` 真的决定服务端拿哪把钥匙。
-
-## 收尾
-
-这题的三个失误是叠在一起的：`kid` 被当成路径而不是编号，黑名单只挡住展示没挡住加载，密钥写死在能被读到的源码里。
-
-修法也对应三条：`kid` 走白名单映射而不是拼路径，密钥独立管理且不要从用户可控路径读取，不要硬编码进源码。
