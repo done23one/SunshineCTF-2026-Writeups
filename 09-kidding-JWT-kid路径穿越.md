@@ -19,7 +19,7 @@ Content-Length: 11
 name=reader
 ```
 
-302，token 在中间响应的 `Set-Cookie` 上。在 Burp 里拦下来就能看到——要是让请求自动跟随重定向，这行头会跟着中间响应一起丢掉，我一开始就以为登录失败了。token 长这样：
+302，token 在中间响应的 `Set-Cookie` 上。在 Burp 里拦下来就能看到，token 长这样：
 
 ```
 eyJhbGciOiJIUzI1NiIsImtpZCI6InJlYWRlci5rZXkiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJyZWFkZXIiLCJyb2xlIjoicmVhZGVyIn0._8O4qsSOc84vlXESt0W2VNygcuzLAZm0roqDZZKcU8A
@@ -98,7 +98,7 @@ except Exception as e:
         disclosed = key.decode('utf-8', errors='replace')   # ← 才展示
 ```
 
-`load_key()` 早就执行完，`is_protected()` 只决定要不要打印。所谓"读不到"是假象——文件内容是读到了，只是不给你看。黑名单是一张固定的路径表，换个路径就能绕开。
+`load_key()` 早就执行完，`is_protected()` 只决定要不要打印。文件内容是读到了，只是不给你看。黑名单是一张固定的路径表，换个路径就能绕开。
 
 第三件，也是最关键的，编辑器密钥本身：
 
